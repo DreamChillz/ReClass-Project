@@ -17,10 +17,12 @@ interface DataTableViewOptionsProps<TData> {
   table: Table<TData>
 }
 
+
 export function DataTableViewOptions<TData>({
   table,
 }: DataTableViewOptionsProps<TData>) {
   return (
+    
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
@@ -42,6 +44,7 @@ export function DataTableViewOptions<TData>({
               typeof column.accessorFn !== "undefined" && column.getCanHide()
           )
           .map((column) => {
+            const header = column.columnDef.meta?.label ?? column.id;
             return (
               <DropdownMenuCheckboxItem
                 key={column.id}
@@ -49,7 +52,7 @@ export function DataTableViewOptions<TData>({
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.id}
+                {header}
               </DropdownMenuCheckboxItem>
             )
           })}
