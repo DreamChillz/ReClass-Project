@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, Mars, Venus, X } from "lucide-react"
+import { MoreHorizontal, Mars, Venus, X, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -14,21 +14,20 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
-import { Head, usePage } from "@inertiajs/react"
+import { Head, Link, usePage } from "@inertiajs/react"
 import { useReactTable, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, getFacetedRowModel, getFacetedUniqueValues } from "@tanstack/react-table"
 import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { DataTableViewOptions } from '@/components/ui/data-table-view-options';
 import { DataTableFacetedFilter } from '@/components/ui/data-table-faceted-filter';
 import { Input } from '@/components/ui/input';
 import { getFacetedOptions } from "@/lib/utils"
-import { useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Students',
     href: '/students',
-  },
+  }
 ];
 
 export type Student = {
@@ -235,22 +234,15 @@ export default function Index() {
   })
   const isFiltered = table.getState().columnFilters.length > 0
 
-  useEffect(() => {
-    const genderColumn = table.getColumn("gender");
-    const values = genderColumn?.getFacetedUniqueValues();
-
-    if (values) {
-      console.log("Faceted Gender Values (as array):", Array.from(values.entries()));
-    }
-  }, [table]);
-
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Students List" />
       <div className="flex h-full w-full flex-col gap-4 rounded-xl p-4">
+        <h6>All Students</h6>
         {/* data table toolbar */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
+
           <div className="flex flex-1 items-center space-x-2">
             <Input
               placeholder="Filter student name..."
@@ -285,6 +277,11 @@ export default function Index() {
               </Button>
             )}
           </div>
+          <Link href={route('students.create')}>
+          <Button size="sm" className="ml-auto hidden h-8 lg:flex">
+            <UserPlus /> Add New Student
+          </Button>
+          </Link>
           <DataTableViewOptions table={table} />
         </div>
 

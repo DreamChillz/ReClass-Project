@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use App\Models\Center;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -24,7 +25,10 @@ class StudentController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Students/Create');
+        $centers = Center::all();
+        return Inertia::render('Students/Create', [
+            'centers' => $centers,
+        ]);
     }
 
     /**
@@ -33,19 +37,20 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'student_id' => 'required|string|max:255',
             'student_name' => 'required|string|max:255',
-            'gender' => 'required|in:Male,Female',
-            'email' => 'required|email|unique:students,email',
+            'gender' => 'required|in:male,female',
+            'email' => 'required|email|',
             'enrolled_date' => 'required|date',
             'status' => 'required|string',
             'contact_number' => 'required|string|max:15',
             'date_of_birth' => 'required|date',
-            'center_id' => 'required|integer',
+            'center_id' => 'required',
             'parent_name' => 'required|string|max:255',
         ]);
-    
+
         Student::create($validated);
-    
+
         return redirect()->route('students.index')->with('success', 'Student added successfully!');
     }
 
