@@ -3,8 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\CenterController;
 
-
+Route::post('/set-center', [CenterController::class, 'set'])->name('center.set');
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');

@@ -14,7 +14,11 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $students = Student::all();
+        $centerId = session('selected_center_id');
+        $students = Student::when($centerId, function ($query) use ($centerId) {
+            return $query->where('center_id', $centerId);
+        })->get();
+
         return Inertia::render('Students/Index', [
             'students' => $students,
         ]);
@@ -41,10 +45,10 @@ class StudentController extends Controller
             'student_name' => 'required|string|max:255',
             'gender' => 'required|in:male,female',
             'email' => 'required|email|',
-            'enrolled_date' => 'required|date',
+            'enrolled_date' => 'required|date|after_or_equal:date_of_birth',
             'status' => 'required|string',
             'contact_number' => 'required|string|max:15',
-            'date_of_birth' => 'required|date',
+            'date_of_birth' => 'required|date|before:today',
             'center_id' => 'required',
             'parent_name' => 'required|string|max:255',
         ]);

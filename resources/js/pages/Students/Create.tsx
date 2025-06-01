@@ -4,8 +4,7 @@
 
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, usePage } from "@inertiajs/react"
-import { toast } from "sonner"
+import { Head, usePage, router } from "@inertiajs/react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -62,24 +61,24 @@ export default function Create() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            "student_id": "",
+            "student_name": "",
+            "gender": "",
+            "email": "",
+            "contact_number": "",
             "date_of_birth": new Date(),
             "enrolled_date": new Date(),
             "status": "study",
+            "parent_name": "",
         },
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        try {
-            console.log(values);
-            toast(
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-                </pre>
-            );
-        } catch (error) {
-            console.error("Form submission error", error);
-            toast.error("Failed to submit the form. Please try again.");
-        }
+        router.post(route('students.store'), {
+            ...values,
+            date_of_birth: format(values.date_of_birth, "yyyy-MM-dd"),
+            enrolled_date: format(values.enrolled_date, "yyyy-MM-dd"),
+        },)
     }
 
     return (

@@ -4,15 +4,30 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { type BreadcrumbItem } from '@/types';
 import { type PropsWithChildren } from 'react';
+import { useEffect } from 'react'
+import { usePage } from '@inertiajs/react'
+import { Toaster } from "@/components/ui/sonner"
+import { toast } from 'sonner'
+
 
 export default function AppSidebarLayout({ children, breadcrumbs = [] }: PropsWithChildren<{ breadcrumbs?: BreadcrumbItem[] }>) {
+    const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props
+    useEffect(() => {
+        if (flash.success) toast.success(flash.success)
+        if (flash.error) toast.error(flash.error)
+    }, [flash.success, flash.error])
+
     return (
-        <AppShell variant="sidebar">
-            <AppSidebar />
-            <AppContent variant="sidebar" className="flex-1 overflow-auto">
-                <AppSidebarHeader breadcrumbs={breadcrumbs} />
-                {children}
-            </AppContent>
-        </AppShell>
+        <>
+            <Toaster position="bottom-right" richColors />
+            <AppShell variant="sidebar">
+                <AppSidebar />
+                <AppContent variant="sidebar" className="flex-1 overflow-auto">
+                    <AppSidebarHeader breadcrumbs={breadcrumbs} />
+                    {children}
+                </AppContent>
+            </AppShell>
+        </>
+
     );
 }

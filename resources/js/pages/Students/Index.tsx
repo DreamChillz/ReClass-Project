@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal, Mars, Venus, X, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { format } from 'date-fns'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -157,7 +158,7 @@ export const columns: ColumnDef<Student>[] = [
     accessorKey: "enrolled_date",
     header: ({ column }) => (<DataTableColumnHeader column={column} title="Enrolled Date" />),
     cell: ({ row }) => (
-      <div>{row.getValue("enrolled_date")}</div>
+      <div>{format(row.getValue("enrolled_date"),'yyyy-MM-dd')}</div>
     ),
     meta: {
       label: "Enrolled Date"
@@ -167,7 +168,7 @@ export const columns: ColumnDef<Student>[] = [
     accessorKey: "date_of_birth",
     header: ({ column }) => (<DataTableColumnHeader column={column} title="DOB" />),
     cell: ({ row }) => (
-      <div>{row.getValue("date_of_birth")}</div>
+      <div>{format(row.getValue("date_of_birth"),"yyyy-MM-dd")}</div>
     ),
     meta: {
       label: "DOB"
@@ -278,7 +279,7 @@ export default function Index() {
             )}
           </div>
           <Link href={route('students.create')}>
-          <Button size="sm" className="ml-auto hidden h-8 lg:flex">
+          <Button size="sm" className="ml-auto hidden h-8 lg:flex cursor-pointer">
             <UserPlus /> Add New Student
           </Button>
           </Link>

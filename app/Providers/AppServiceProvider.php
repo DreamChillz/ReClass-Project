@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
+use App\Models\Center;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Inertia::share([
+            'centers' => fn() => Center::select('center_id', 'center_name')->orderBy('center_name')->get(),
+            'selected_center_id' => fn() => session('selected_center_id'),
+        ]);
     }
 }

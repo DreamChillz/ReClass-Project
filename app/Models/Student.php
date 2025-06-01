@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Student extends Model
 {
     protected $fillable = [
+        'student_id',
         'student_name',
         'gender',
         'email',
@@ -16,5 +17,10 @@ class Student extends Model
         'date_of_birth',
         'center_id',
         'parent_name'
+    ];
+
+    protected $casts = [
+        'date_of_birth'  => 'date',
+        'enrolled_date'  => 'date',
     ];
 }
