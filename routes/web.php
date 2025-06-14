@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CenterController;
+use App\Http\Controllers\SubjectController;
 
 Route::post('/set-center', [CenterController::class, 'set'])->name('center.set');
 Route::get('/', function () {
@@ -16,6 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::resource('students', StudentController::class);
+    Route::resource('subjects', SubjectController::class);
 });
 
 require __DIR__ . '/settings.php';

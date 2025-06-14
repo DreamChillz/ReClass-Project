@@ -14,7 +14,7 @@ export function getFacetedOptions<TData, TValue>(
     return Array.from(column.getFacetedUniqueValues().entries())
     .filter(([value]) => value !== null)
     .map(([value]) => {
-      const val = String(value).trim().toLowerCase();
+      const val = String(value).trim();
       return {
         label: val.charAt(0).toUpperCase() + val.slice(1), // e.g. "male" → "Male"
         value: val, // must match what's in the data

@@ -29,7 +29,7 @@ import { PhoneInput } from "@/components/ui/phone-input";
 import { format } from "date-fns"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
-import { Calendar as CalendarIcon } from "lucide-react"
+import { CalendarIcon, Venus, Mars } from "lucide-react"
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -143,8 +143,8 @@ export default function Create() {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                <SelectItem value="male">Male</SelectItem>
-                                                <SelectItem value="female">Female</SelectItem>
+                                                <SelectItem value="male"><Mars size={16} style={{ color: "#007bff" }} />Male</SelectItem>
+                                                <SelectItem value="female"><Venus size={16} style={{ color: "#ff69b4", }} />Female</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </FormItem>)} />
@@ -173,7 +173,22 @@ export default function Create() {
                                         <FormLabel>Contact Number</FormLabel>
                                         <FormControl className="w-full">
                                             <PhoneInput placeholder="Contact Number" {...field} defaultCountry="MY" international
-                                                countryCallingCodeEditable={false} />
+                                                countryCallingCodeEditable={false}
+                                                value={field.value ? "+" + field.value.replace(/\D/g, "") : ""}
+
+                                                onChange={(e164Value) => {
+                                                    if (!e164Value) {
+                                                        field.onChange("");
+                                                        return;
+                                                    }
+                                                    const digitsOnly = e164Value.replace(/\D/g, "");
+
+                                                    let international = digitsOnly;
+                                                    if (digitsOnly.startsWith("0")) {
+                                                        international = "6" + digitsOnly;
+                                                    }
+                                                    field.onChange(international);
+                                                }} />
                                         </FormControl>
                                     </FormItem>
                                 )}
