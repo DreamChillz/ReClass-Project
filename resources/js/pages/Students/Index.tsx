@@ -2,43 +2,49 @@
 //@ts-nocheck
 import React from 'react';
 
-import { format } from 'date-fns';
-import { Mars, Venus, X, UserPlus } from 'lucide-react';
-import { Head, Link, usePage, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
-  useReactTable,
   getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
+  useReactTable,
 } from '@tanstack/react-table';
+import { format } from 'date-fns';
+import { Mars, UserPlus, Venus, X, Pickaxe } from 'lucide-react';
 
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 
 // UI components
+import { Student, StudentActions } from '@/components/actions/StudentActions';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import { DataTableFacetedFilter } from '@/components/ui/data-table-faceted-filter';
 import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { DataTableViewOptions } from '@/components/ui/data-table-view-options';
-import { DataTableFacetedFilter } from '@/components/ui/data-table-faceted-filter';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-
 import { getFacetedOptions } from '@/lib/utils';
-import { StudentActions, Student } from '@/components/actions/StudentActions';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Students',
     href: '/students',
-  }
+  },
 ];
-
 
 export default function Index() {
   const { props } = usePage<{ students: Student[] }>();
@@ -53,164 +59,144 @@ export default function Index() {
   };
 
   const columns = React.useMemo(
-    () => [{
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
+    () => [
+      {
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Select all"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        id: 'actions',
+        header: () => <span>Actions</span>,
+        cell: ({ row }) => {
+          const student = row.original;
+          return (
+            <div className="flex justify-center">
+              <StudentActions student={student} onEdit={handleEdit} onDelete={handleDelete} />
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: 'student_id',
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Student ID" />,
+        cell: ({ row }) => <div>{row.getValue('student_id')}</div>,
+        meta: {
+          label: 'Student ID',
+        },
+      },
+      {
+        accessorKey: 'student_name',
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Student Name" />,
+        cell: ({ row }) => <div>{row.getValue('student_name')}</div>,
+        meta: {
+          label: 'Student Name',
+        },
+      },
+      {
+        accessorKey: 'gender',
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Gender" />,
+        cell: ({ row }) => {
+          const rawGender = row.getValue('gender');
+          const gender = (typeof rawGender === 'string' ? rawGender : '').toLowerCase();
+
+          if (gender === 'female') {
+            return (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Venus size={16} style={{ color: '#ff69b4' }} />
+                Female
+              </span>
+            );
+          } else if (gender === 'male') {
+            return (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Mars size={16} style={{ color: '#007bff' }} />
+                Male
+              </span>
+            );
+          } else {
+            return <span>{row.getValue('gender') || 'Unknown'}</span>;
           }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      id: 'actions',
-      header: () => <span>Actions</span>,
-      cell: ({ row }) => {
-        const student = row.original;
-        return (
-          <div className="flex justify-center">
-            <StudentActions
-              student={student}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "student_id",
-      header: ({ column }) => (<DataTableColumnHeader column={column} title="Student ID" />),
-      cell: ({ row }) => (
-        <div>{row.getValue("student_id")}</div>
-      ),
-      meta: {
-        label: "Student ID"
-      }
-    },
-    {
-      accessorKey: "student_name",
-      header: ({ column }) => (<DataTableColumnHeader column={column} title="Student Name" />),
-      cell: ({ row }) => (
-        <div>{row.getValue("student_name")}</div>
-      ),
-      meta: {
-        label: "Student Name"
-      }
-    },
-    {
-      accessorKey: "gender",
-      header: ({ column }) => (<DataTableColumnHeader column={column} title="Gender" />),
-      cell: ({ row }) => {
-        const rawGender = row.getValue("gender");
-        const gender = (typeof rawGender === "string" ? rawGender : "").toLowerCase();
-
-        if (gender === "female") {
-          return (
-            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <Venus size={16} style={{ color: "#ff69b4", }} />
-              Female
-            </span>
-          );
-        } else if (gender === "male") {
-          return (
-            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <Mars size={16} style={{ color: "#007bff" }} />
-              Male
-            </span>
-          );
-        } else {
-          return <span>{row.getValue("gender") || "Unknown"}</span>;
-        }
-      },
-      filterFn:
-        (row, columnId, filterValue) => {
+        },
+        filterFn: (row, columnId, filterValue) => {
           return filterValue.includes(row.getValue(columnId));
         },
-      meta: {
-        label: "Gender"
-      }
-    },
-    {
-      accessorKey: "email",
-      header: ({ column }) => (<DataTableColumnHeader column={column} title="Email" />),
-      cell: ({ row }) => <div>{row.getValue("email")}</div>,
-      meta: {
-        label: "Email"
-      }
-    },
-    {
-      accessorKey: "contact_number",
-      header: ({ column }) => (<DataTableColumnHeader column={column} title="Contact Number" />),
-      cell: ({ row }) => (
-        <div>{row.getValue("contact_number")}</div>
-      ),
-      meta: {
-        label: "Contact Number"
-      }
-    },
-    {
-      accessorKey: "status",
-      header: ({ column }) => (<DataTableColumnHeader column={column} title="Status" />),
-      cell: ({ row }) => (
-        row.getValue("status") === "study" ?
-          <Badge variant="default" className='bg-green-600 text-white capitalize'>{row.getValue("status")}</Badge>
-          : <Badge variant="destructive" className='capitalize'>{row.getValue("status")}</Badge>
-      ),
-      filterFn:
-        (row, columnId, filterValue) => {
+        meta: {
+          label: 'Gender',
+        },
+      },
+      {
+        accessorKey: 'email',
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
+        cell: ({ row }) => <div>{row.getValue('email')}</div>,
+        meta: {
+          label: 'Email',
+        },
+      },
+      {
+        accessorKey: 'contact_number',
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Contact Number" />,
+        cell: ({ row }) => <div>{row.getValue('contact_number')}</div>,
+        meta: {
+          label: 'Contact Number',
+        },
+      },
+      {
+        accessorKey: 'status',
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+        cell: ({ row }) =>
+          row.getValue('status') === 'study' ? (
+            <Badge variant="default" className="bg-green-600 text-white capitalize">
+              {row.getValue('status')}
+            </Badge>
+          ) : (
+            <Badge variant="destructive" className="capitalize">
+              {row.getValue('status')}
+            </Badge>
+          ),
+        filterFn: (row, columnId, filterValue) => {
           return filterValue.includes(row.getValue(columnId));
         },
-      meta: {
-        label: "Status"
-      }
-    },
-    {
-      accessorKey: "enrolled_date",
-      header: ({ column }) => (<DataTableColumnHeader column={column} title="Enrolled Date" />),
-      cell: ({ row }) => (
-        <div>{format(row.getValue("enrolled_date"), 'yyyy-MM-dd')}</div>
-      ),
-      meta: {
-        label: "Enrolled Date"
-      }
-    },
-    {
-      accessorKey: "date_of_birth",
-      header: ({ column }) => (<DataTableColumnHeader column={column} title="DOB" />),
-      cell: ({ row }) => (
-        <div>{format(row.getValue("date_of_birth"), "yyyy-MM-dd")}</div>
-      ),
-      meta: {
-        label: "DOB"
-      }
-    },
-    {
-      accessorKey: "parent_name",
-      header: ({ column }) => (<DataTableColumnHeader column={column} title="Parent Name" />),
-      cell: ({ row }) => (
-        <div>{row.getValue("parent_name")}</div>
-      ),
-      meta: {
-        label: "Parent Name"
-      }
-    },
-
-
-    ], []
+        meta: {
+          label: 'Status',
+        },
+      },
+      {
+        accessorKey: 'enrolled_date',
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Enrolled Date" />,
+        cell: ({ row }) => <div>{format(row.getValue('enrolled_date'), 'yyyy-MM-dd')}</div>,
+        meta: {
+          label: 'Enrolled Date',
+        },
+      },
+      {
+        accessorKey: 'date_of_birth',
+        header: ({ column }) => <DataTableColumnHeader column={column} title="DOB" />,
+        cell: ({ row }) => <div>{format(row.getValue('date_of_birth'), 'yyyy-MM-dd')}</div>,
+        meta: {
+          label: 'DOB',
+        },
+      },
+      {
+        accessorKey: 'parent_name',
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Parent Name" />,
+        cell: ({ row }) => <div>{row.getValue('parent_name')}</div>,
+        meta: {
+          label: 'Parent Name',
+        },
+      },
+    ],
+    [],
   );
 
   const table = useReactTable({
@@ -222,58 +208,74 @@ export default function Index() {
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    state: {},
-  })
-  const isFiltered = table.getState().columnFilters.length > 0
+  });
+  const isFiltered = table.getState().columnFilters.length > 0;
 
+  //set status as study by default
+  React.useEffect(() => {
+    table.getColumn('status')?.setFilterValue(['study']);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Students List" />
       <div className="flex h-full w-full flex-col gap-4 rounded-xl p-4">
-        <h6>All Students</h6>
-        {/* data table toolbar */}
-        <div className="flex items-center justify-between gap-2">
 
-          <div className="flex flex-1 items-center space-x-2">
-            <Input
-              placeholder="Filter student name..."
-              value={(table.getColumn("student_name")?.getFilterValue() as string) ?? ""}
-              onChange={(event) =>
-                table.getColumn("student_name")?.setFilterValue(event.target.value)
-              }
-              className="h-8 w-[150px] lg:w-[250px]"
-            />
-            {table.getColumn("status") && (
-              <DataTableFacetedFilter
-                column={table.getColumn("status")}
-                title="Status"
-                options={getFacetedOptions(table.getColumn("status"))}
-              />
-            )}
-            {table.getColumn("gender") && (
-              <DataTableFacetedFilter
-                column={table.getColumn("gender")}
-                title="Gender"
-                options={getFacetedOptions(table.getColumn("gender"))}
-              />
-            )}
-            {isFiltered && (
-              <Button
-                variant="ghost"
-                onClick={() => table.resetColumnFilters()}
-                className="h-8 px-2 lg:px-3"
-              >
-                Reset
-                <X />
+        <div className="flex items-center gap-2 justify-between">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Pickaxe />Actions
               </Button>
-            )}
-          </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='start'>
+              <DropdownMenuItem>Import Students</DropdownMenuItem>
+              <DropdownMenuItem>Export as CSV</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Link href={route('students.create')}>
             <Button size="sm" className="ml-auto hidden h-8 lg:flex">
               <UserPlus /> Add New Student
             </Button>
           </Link>
+
+
+        </div>
+
+        <h6>All Students</h6>
+
+        {/* data table toolbar */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-1 items-center space-x-2">
+            <Input
+              placeholder="Filter student name..."
+              value={(table.getColumn('student_name')?.getFilterValue() as string) ?? ''}
+              onChange={(event) => table.getColumn('student_name')?.setFilterValue(event.target.value)}
+              className="h-8 w-[150px] lg:w-[250px]"
+            />
+            {table.getColumn('status') && (
+              <DataTableFacetedFilter
+                column={table.getColumn('status')}
+                title="Status"
+                options={getFacetedOptions(table.getColumn('status'))}
+              />
+            )}
+            {table.getColumn('gender') && (
+              <DataTableFacetedFilter
+                column={table.getColumn('gender')}
+                title="Gender"
+                options={getFacetedOptions(table.getColumn('gender'))}
+              />
+            )}
+            {isFiltered && (
+              <Button variant="ghost" onClick={() => table.resetColumnFilters()} className="h-8 px-2 lg:px-3">
+                Reset
+                <X />
+              </Button>
+            )}
+          </div>
           <DataTableViewOptions table={table} />
         </div>
 
@@ -283,5 +285,5 @@ export default function Index() {
         <DataTablePagination table={table} />
       </div>
     </AppLayout>
-  )
+  );
 }

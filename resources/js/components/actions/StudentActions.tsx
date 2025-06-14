@@ -64,6 +64,9 @@ export function StudentActions({
                     <DropdownMenuItem>
                         View details
                     </DropdownMenuItem>
+                    {/* <DropdownMenuItem>
+                        Drop Student
+                    </DropdownMenuItem> */}
                 </DropdownMenuContent>
             </DropdownMenu>
 
