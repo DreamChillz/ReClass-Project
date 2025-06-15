@@ -161,11 +161,13 @@ export default function Index() {
                 header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
                 cell: ({ row }) =>
                     row.getValue('status') === 'study' ? (
-                        <Badge variant="default" className="bg-green-600 text-white capitalize">
+                        <Badge className="rounded-full bg-emerald-600/10 text-emerald-500 capitalize shadow-none hover:bg-emerald-600/10 dark:bg-emerald-600/20">
+                            <div className="mr-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
                             {row.getValue('status')}
                         </Badge>
                     ) : (
-                        <Badge variant="destructive" className="capitalize">
+                        <Badge className="rounded-full bg-red-600/10 text-red-500 capitalize shadow-none hover:bg-red-600/10 dark:bg-red-600/20">
+                            <div className="mr-2 h-1.5 w-1.5 rounded-full bg-red-500" />
                             {row.getValue('status')}
                         </Badge>
                     ),
@@ -292,7 +294,7 @@ export default function Index() {
                     </DropdownMenu>
 
                     <Link href={route('students.create')}>
-                        <Button size="sm" className="ml-auto hidden h-8 lg:flex">
+                        <Button size="sm" className="ml-auto h-8 lg:flex">
                             <UserPlus /> Add New Student
                         </Button>
                     </Link>

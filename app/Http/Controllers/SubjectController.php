@@ -14,7 +14,7 @@ class SubjectController extends Controller
      */
     public function index()
     {
-        $subjects = Subject::all();
+        $subjects = Subject::orderBy('created_at', 'desc')->get();
         return Inertia::render('Subjects/Index', [
             'subjects' => $subjects,
         ]);
@@ -33,7 +33,15 @@ class SubjectController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'subject_name' => ['required', 'string', 'max:50'],
+            'tuition_type' => ['required', 'string', 'max:50'],
+            'fees'         => ['required', 'numeric', 'min:0'],
+        ]);
+
+        $subject = Subject::create($data);
+
+        return response()->json(['subject' => $subject], 201);
     }
 
     /**
@@ -55,16 +63,29 @@ class SubjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Subject $subject)
     {
-        //
+        $data = $request->validate([
+            'subject_name' => ['required', 'string', 'max:100'],
+            'tuition_type' => ['required', 'string', 'max:50'],
+            'fees'         => ['required', 'numeric', 'min:0'],
+        ]);
+
+        $subject->update($data);
+
+        return response()->json([
+            'subject' => $subject,
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Subject $subject)
     {
-        //
+        $subject->delete();
+
+        // No content needed on success
+        return response()->json(null, 204);
     }
 }
